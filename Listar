@@ -1,0 +1,276 @@
+<?php 
+require "conexion.php";
+$objeConexion = new Conexion();
+
+session_start();
+error_reporting(E_ALL ^ E_NOTICE); 
+
+if($_SESSION['logueado'] != "SI"){
+header('location: index.php');
+exit();
+}
+
+$id = $_GET['id'];
+$sql = "SELECT * FROM mensaje WHERE para='".$_SESSION['id']."' and ID='".$id."'";
+$res = mysqli_query($objeConexion->conectarse(),$sql) or die(mysqli_error());
+$row = mysqli_fetch_assoc($res)
+;$hoy = date("Y-m-d");
+
+?>
+
+<!DOCTYPE html>
+<html class="nube" lang="tecnologico">
+<style type="text/css">
+#apDiv1 {
+  position: absolute;
+  left: 36px;
+  top: 442px;
+  width: 239px;
+  height: 15px;
+  z-index: 1;
+  text-decoration:underline
+}
+.dates {
+  font-size: 10px;
+}
+.date {
+  font-size: 10px;
+}
+</style>
+<link rel="shortcut icon" href="images_ruth/20.png">
+
+<head>
+<title>Mensaje Recivido</title>
+<meta charset="UTF-8">
+
+
+<link rel="stylesheet" type="text/css" href="css_ruth/leerrecibidos.css"/>
+<link rel="stylesheet" href="css_ruth/skel.css"/>
+<link rel="stylesheet" href="css_ruth/s.css" />
+<link rel="stylesheet" href="css_ruth/busqueda.css"/>
+  
+<link rel="stylesheet" href="css_ruth/stylemensaje.css">
+<link rel="stylesheet" href="css_ruth/tablas.css">
+
+
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.9.1/themes/base/jquery-ui.css" />
+<script src="http://code.jquery.com/jquery-1.8.2.js"></script>
+<script src="/resources/demos/external/jquery.bgiframe-2.1.2.js"></script>
+<script src="http://code.jquery.com/ui/1.9.1/jquery-ui.js"></script>
+<script>
+
+  function abrir_dialog() {
+      $( "#dialog" ).dialog();
+  };
+
+</script>
+</head>
+<body>
+
+<div id="dialog" title="Nuevo mensaje" style="display:none;">
+    <FORM CLASS="borde" ACTION="Leer.php" METHOD="POST" ENCTYPE="multipart/form-data">
+        <input type="text" name="para" id ="para" placeholder="Para:" autofocus/><br />
+        <br>
+        <input type="text" name="asunto" placeholder="Asunto:" /><br />
+        Mensaje:<br />
+        <textarea name="texto" ></textarea>
+        <br />
+        <br />
+        <INPUT TYPE="HIDDEN" NAME="MAX_FILE_SIZE" VALUE="10024000000000000">
+        <INPUT TYPE="FILE" NAME="foto" >
+
+        <?PHP
+           if ($errores["foto"] != "")
+              print ("<BR><SPAN CLASS='error'>" . $errores["foto"] . "</SPAN>");
+        ?>
+        </P>
+        <br>
+        <br>
+        <P><INPUT TYPE="submit" NAME="insertar" VALUE="Agregar"></P>
+    </FORM>
+</div>
+
+
+<div id="nombrezip"></div>
+<div class="logo">
+<img  class="imagen" src="images_ruth/20misantla.png">
+
+
+<form class="formulariodemo cf">
+  <input type="text" placeholder="" required>
+  <button  type="submit"> buscar</button>
+</form>
+
+<a href="Perfil.php"><img  class="inicio" src="imagenes/usuarios/<?=$_SESSION['foto']?>" width="45" height="45"></a>
+
+<div class="lateral">
+
+<a class="button white" onclick="abrir_dialog()" id="start">Redactar</a></div>
+
+<div id="menu">
+<ul>
+<li>
+<a title="Link 1" href="Listarmensajes.php"><b class="recibidos">Mensajes Recibidos.</b></a></li>
+<li>
+<a title="Link 2" href="">Mensajes Enviados.</a>
+</li>
+<li>
+<a title="Link 3" href=""><b class="borrado">Mensajes en Borrador.</b></a>
+</li>
+</ul>
+</div>
+
+<div class="lineatabla">
+<div class="devuelve" data-devuelve="regresar a mensajes enviados"><a href="Listarmensajes.php"><img class="devolver" src="images_ruth/flachita.png"></a></div>
+<div class="gris" data-gris="borrar mensaje">
+  <form action="" method="post">
+     <a href="Listarmensajes.php"><input type="submit" value="borrar" name="hola" src="images_ruth/BORRARGRIS.png" width="25" height="15"/></a>
+  </form>
+</div>
+
+<div class="tooltip" data-tooltip="ACTUALIZAR "><button class="actualizar" onclick="location.reload(true)"><img src="images_ruth/actualizate.png"></button></div>
+<div class="intervalo">
+</span>
+</div>
+
+</span>
+<div class="borde"></div>
+
+<div class="remitente"><div class="remi"><center><?=$_SESSION['usuario']?></center></div>.</div>
+
+<div class="date"><?=$row['fecha']?></div>
+
+<div class="man" data-man="redactar mensaje"><img id="mensajito" class="mensajito"src="images_ruth/mensajito.png"></div>
+
+
+<div class="leer">
+<div class="ve">
+
+<div class="estilotextarea2"><?=$row['texto']?></div>
+
+
+<?php
+if(trim($row['adjunto']) == true ){
+  ?>
+    <div class="zip">
+      <b class="archivozip"><?=$row['adjunto']?></b>
+      <a href= "mensajes/<?=$row['adjunto']?>"><input  class="BAJA"name="" type="image" src="images_ruth/baja.png"></a>
+      <form action="" method="post">
+        <input  class="BORRAR" name="borrar" type="submit" src="images_ruth/goma.png" >
+      </form>
+
+      <div class="zipp"><em class="nombrearchivo"><?=$row['adjunto']?></em></div>
+    </div>
+  <?php
+}
+?>
+</div>
+
+<div class="RESPONDER"><span class="contesta">Haz clic aquí para</span> <span  class="letrita" id="empezar" href="#">responder</span><span class="este">este mensaje.</span></div>
+<table width="745" class="rwd-table">
+  <tr>
+    <th class="#"><b class="asunto"><?=$row['asunto']?><img  class="rectangulo" src="images_ruth/leer.png">
+    
+   <div class="regresarenviado" data-regresarenviado="regresar a mensajes enviados"><a href="Listarmensajes.php"><img src="images_ruth/flachita.png" width="11" height="8"  class="flecha"></a></div>
+    </b>
+    <DIV class="CON">
+      <?php        
+          $sql2 = "SELECT * FROM `usuarios` WHERE ID=".$row['de'];
+          $res2 = mysqli_query($objeConexion->conectarse(),$sql2) or die(mysqli_error());          
+          while($row2 = mysqli_fetch_assoc($res2)){             
+            ?>                        
+            <b class="para" >de: <?=$row2['nombre']?></b> 
+            <?php  
+        }
+      ?>
+
+    
+    <b class="mando"  >para:  <?=$_SESSION['usuario']?>.</b> 
+       <b class="dia"  >fecha: <?=$row['fecha']?>.</b> 
+       <?PHP
+       $_SESSION['fechamensaje']=$row['fecha'];
+       ?>
+       </DIV>
+    </th>
+      
+<tr>
+<td  class="#"data-th="Movie Title">
+  <?php
+      $sql2 = "SELECT * FROM `usuarios` WHERE ID=".$row['de'];
+      $res2 = mysqli_query($objeConexion->conectarse(),$sql2) or die(mysqli_error());          
+      while($row2 = mysqli_fetch_assoc($res2)){             
+        ?>                        
+        <img src="imagenes/usuarios/<?=$_SESSION['foto'] ?>" class="persona" width="35" height="40"><span class="contenido1">  De:  <?=$row2['nombre']?></span>
+        <?php  
+      }
+  
+      $diaa = substr($_SESSION['fechamensaje'], 0, -8);  
+      $mess = substr($_SESSION['fechamensaje'], 3, -5);  
+      $anno = substr($_SESSION['fechamensaje'], 6);  
+      $fechaantes=$anno."-".$mess."-".$diaa;
+
+
+      function dias_transcurridos($fecha_i,$fecha_f)
+      {
+        $dias = (strtotime($fecha_i)-strtotime($fecha_f))/86400;
+        $dias   = abs($dias); $dias = floor($dias);   
+        return $dias;
+      }
+      $dias_trans=dias_transcurridos($fechaantes,$hoy);
+      $meses = array("Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"); 
+
+      if($dias_trans==0){
+        $dias_trans="Hoy mismo";
+      }else{
+        $dias_trans="Hace ".$dias_trans." días.";
+      }
+
+
+
+?>
+
+
+<span  class="fecha"><?=$diaa ?> <?=$meses[$mess-1] ?> (<?=$dias_trans ?>)</span>
+<img src="images_ruth/stars.png" class="estrella">
+
+
+
+
+</td>
+</tr> 
+</table> 
+</div>
+
+
+</body>
+</html> 
+
+<?php 
+if($row['leido'] != "si")
+{
+  $sql="UPDATE mensaje SET leido='si' WHERE ID='".$id."'";
+  $res=mysqli_query($objeConexion->conectarse(),$sql) or die(mysqli_error());
+}
+
+
+if(isset($_POST['hola'])){
+
+  $sql = "UPDATE `mensaje` SET `para`='',`de`='',`leido`=null,`fecha`='',`asunto`='',`texto`='',adjunto='',`actico`=0 WHERE `ID`= ".$id;
+  $res = mysqli_query($objeConexion->conectarse(),$sql) or die(mysqli_error());
+
+  ?>
+  <script type="text/javascript">
+    window.location="Listarmensajes.php";
+  </script>
+  <?php
+}
+
+
+if(isset($_POST['borrar'])){
+
+  $sql = "UPDATE `mensaje` SET  adjunto='' WHERE `ID`= ".$id;
+  $res = mysqli_query($objeConexion->conectarse(),$sql) or die(mysqli_error());
+  unlink('mensajes/'.$row['adjunto']);
+  echo "onclick='window.location.reload();'";
+}
+?>
